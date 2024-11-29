@@ -1,0 +1,41 @@
+all:
+  hosts:
+    ankestyrelsen_SYNK:
+      ansible_host: 172.20.156.188
+      ansible_port: 21
+      ansible_become_password: test
+
+    ankestyrelsen_MSL:
+      ansible_host: 172.20.156.188
+      ansible_port: 22
+      ansible_become_password: test
+
+    motorstyrelsen_SYNK:
+      ansible_host: 172.20.156.188
+      ansible_port: 23
+      ansible_become_password: test
+
+    motorstyrelsen_MSL:
+      ansible_host: 172.20.156.188
+      ansible_port: 24
+      ansible_become_password: test
+      
+  children:
+    SYNK:
+      hosts:
+        ankestyrelsen_SYNK:
+        motorstyrelsen_SYNK:
+    MSL:
+      hosts:
+        ankestyrelsen_MSL:
+        motorstyrelsen_MSL:
+    Companies:
+      children:
+        ankestyrelsen:
+          hosts:
+            ankestyrelsen_SYNK:
+            ankestyrelsen_MSL:
+        motorstyrelsen:
+          hosts:
+            motorstyrelsen_SYNK:
+            motorstyrelsen_MSL:

@@ -1,0 +1,12 @@
+---
+- name: Install Dependencies for MSL Group
+  hosts: MSL
+  become: yes
+  roles:
+    - roles/MSL
+
+- name: Install Dependencies for SYNK Group
+  hosts: SYNK
+  become: yes
+  roles:
+    - roles/SYNK

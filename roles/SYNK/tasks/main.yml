@@ -1,0 +1,27 @@
+---
+- name: Install OpenJDK 8
+  apt:
+    name: openjdk-8-jdk
+    state: present
+  become: yes
+
+
+- name: Install Unzip Utility
+  apt:
+    name: unzip
+    state: present
+  become: yes
+
+- name: Download Grails 2.5.4
+  get_url:
+    url: https://github.com/grails/grails-core/releases/download/v2.5.4/grails-2.5.4.zip
+    dest: /opt/grails-2.5.4.zip
+  become: yes
+
+- name: Unzip Grails
+  ansible.builtin.unarchive:
+    src: /opt/grails-2.5.4.zip
+    dest: /opt/
+    remote_src: yes
+  become: yes
+
