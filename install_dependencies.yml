@@ -6,7 +6,7 @@
     - roles/MSL
 
 - name: Install Dependencies for SYNK Group
-  hosts: SYNK
+  hosts: SYNK-WZP
   become: yes
   roles:
-    - roles/SYNK
+    - roles/SYNK-WZP

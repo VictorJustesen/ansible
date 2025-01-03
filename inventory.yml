@@ -1,0 +1,46 @@
+all:
+  hosts:
+    test_SYNK-WZP:
+      ansible_host: 172.20.156.188
+      ansible_port: 21
+      ansible_user: root
+      ansible_become_password: test
+
+    test_MSL:
+      ansible_host: 172.20.156.188
+      ansible_port: 23
+      ansible_user: root
+      ansible_become_password: test
+
+    prod_SYNK-WZP:
+      ansible_host: 172.20.156.188
+      ansible_port: 22
+      ansible_user: root
+
+    prod_MSL:
+      ansible_host: 172.20.156.188
+      ansible_port: 22
+      ansible_user: root
+
+  children:
+    Applications:
+      children:
+        SYNK-WZP:
+          hosts:
+            test_SYNK-WZP:
+            prod_SYNK-WZP:
+        MSL:
+          hosts:
+            test_MSL:
+            prod_MSL:
+
+    Enviroments:
+      children:
+        test:
+          hosts:
+            test_SYNK-WZP:
+            test_MSL:
+        prod:
+          hosts:
+            prod_SYNK-WZP:
+            prod_MSL:

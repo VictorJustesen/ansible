@@ -1,44 +1,62 @@
 ---
 - name: Install OpenJDK 17
-  apt:
-    name: openjdk-17-jdk
-    state: present
-  become: yes
-
-- name: Install Gradle
-  apt:
-    name: gradle
-    state: present
-  become: yes
-
-- name: Install required system packages
-  apt:
-    pkg:
-      - apt-transport-https
-      - ca-certificates
-      - curl
-      - software-properties-common
-      - python3-pip
-      - virtualenv
-      - python3-setuptools
-    state: latest
-    update_cache: true
-
-- name: Add Docker GPG apt Key
-  apt_key:
-    url: https://download.docker.com/linux/ubuntu/gpg
+  yum:
+    name: java-17-openjdk-devel
     state: present
 
-- name: Add Docker Repository
-  apt_repository:
-    repo: deb https://download.docker.com/linux/ubuntu focal stable
-    state: present
+- name: Download Gradle
+  get_url:
+    url: https://services.gradle.org/distributions/gradle-8.4-bin.zip
+    dest: /tmp/gradle-8.4-bin.zip
 
-- name: Update apt and install docker-ce and docker-compose
-  apt:
-    pkg:
+- name: Create Gradle installation directory
+  file:
+    path: /opt/gradle
+    state: directory
+
+- name: Unzip Gradle
+  unarchive:
+    src: /tmp/gradle-8.4-bin.zip
+    dest: /opt/gradle
+    remote_src: yes
+
+- name: Create symbolic link for Gradle
+  file:
+    src: /opt/gradle/gradle-8.4
+    dest: /opt/gradle/latest
+    state: link
+
+- name: Add Gradle to PATH
+  copy:
+    dest: /etc/profile.d/gradle.sh
+    content: |
+      export PATH=$PATH:/opt/gradle/latest/bin
+    mode: '0755'
+
+- name: Add Docker repository
+  yum_repository:
+    name: docker-ce-stable
+    description: Docker CE Stable - $releasever
+    baseurl: "https://download.docker.com/linux/centos/$releasever/$basearch/stable"
+    gpgcheck: 1
+    enabled: 1
+    gpgkey: "https://download.docker.com/linux/centos/gpg"
+
+- name: Install Docker CE
+  yum:
+    name:
       - docker-ce
-      - docker-compose
+      - docker-ce-cli
+      - containerd.io
     state: latest
-    update_cache: true
 
+- name: Install Docker Compose Plugin
+  yum:
+    name: docker-compose-plugin
+    state: latest
+
+- name: Enable and start Docker
+  systemd:
+    name: docker
+    enabled: true
+    state: started

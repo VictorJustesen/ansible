@@ -1,0 +1,94 @@
+---
+
+- name: Install OpenJDK 8
+  yum:
+    name: java-1.8.0-openjdk-devel
+    state: present
+
+- name: Set JAVA_HOME
+  copy:
+    dest: /etc/profile.d/java_home.sh
+    content: |
+      export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk
+      export PATH=$JAVA_HOME/bin:$PATH
+    mode: '0755'
+
+- name: Install unzip
+  yum:
+    name: unzip
+    state: present
+
+- name: Install compat-openssl11
+  yum:
+    name: compat-openssl11
+    state: present
+
+- name: Download Grails 2.5.4
+  get_url:
+    url: "https://github.com/grails/grails-core/releases/download/v2.5.4/grails-2.5.4.zip"
+    dest: "/opt/grails-2.5.4.zip"
+
+- name: Unzip Grails
+  unarchive:
+    src: "/opt/grails-2.5.4.zip"
+    dest: "/opt/"
+    remote_src: yes
+
+- name: Add Microsoft Yum repository
+  yum_repository:
+    name: "microsoft-prod"
+    description: "Microsoft .NET Core Repository"
+    baseurl: "https://packages.microsoft.com/rhel/9/prod/"
+    gpgcheck: yes
+    gpgkey: "https://packages.microsoft.com/keys/microsoft.asc"
+    enabled: yes
+
+- name: Install .NET 6 SDK
+  yum:
+    name: dotnet-sdk-6.0
+    state: present
+    enablerepo: "microsoft-prod"
+    disablerepo:
+        - "ubi-9-*"
+        - "rhel-9-for-x86_64-appstream-rpms"
+
+- name: Download ASP.NET Core 3.1 Runtime tarball
+  get_url:
+    url: "https://download.visualstudio.microsoft.com/download/pr/39c3ef4c-73c7-4248-8c54-0865d5feb8b2/3420b1ff6b0f36e63044d6f7a794b579/aspnetcore-runtime-3.1.32-linux-x64.tar.gz"
+    dest: "/tmp/aspnetcore-runtime-3.1.32-linux-x64.tar.gz"
+
+- name: Create /usr/local/dotnet-3.1 directory
+  file:
+    path: "/usr/local/dotnet-3.1"
+    state: directory
+    mode: '0755'
+
+- name: Extract ASP.NET Core 3.1 Runtime
+  unarchive:
+    src: "/tmp/aspnetcore-runtime-3.1.32-linux-x64.tar.gz"
+    dest: "/usr/local/dotnet-3.1"
+    remote_src: yes
+
+- name: Symlink dotnet 3.1 to /usr/local/bin/dotnet3.1
+  file:
+    src: "/usr/local/dotnet-3.1/dotnet"
+    dest: "/usr/local/bin/dotnet3.1"
+    state: link
+
+- name: Create /configs directory
+  file:
+    path: /configs
+    state: directory
+    mode: "0755"
+
+- name: Create NLog.config file
+  copy:
+    dest: /configs/NLog.config
+    content: ""
+    mode: "0644"
+
+- name: Create wzconfig.json file
+  copy:
+    dest: /configs/wzconfig.json
+    content: "{}"
+    mode: "0644"
